@@ -4,24 +4,28 @@ pragma solidity >=0.7.0 <0.9.0;
  * @title Sentinel
  * @dev Accepts deposits, becomes PIC, after a time period it exits its position and sends returns to users
  */
-import {TOGA} from "@superfluid-finance/protocol-monorepo/packages/ethereum-contracts/contracts/utils/TOGA.sol";
-import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/utils/math/SafeMath.sol";
-import {vestingShares} from "vestingShares.sol
+import {TOGA} from "@superfluid-finance/ethereum-contracts/contracts/utils/TOGA.sol";
+import {ISuperToken} from "@superfluid-finance/ethereum-contracts/contracts/interfaces/superfluid/ISuperToken.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import {vestingShares} from "./vestingShares.sol";
 
- contract Sentinel {
+ contract Sentinel is Ownable {
 
     // calling SafeMath will add extra functions to the uint data type
-    using SafeMath for uint; // you can make a call like myUint.add(123)
+    // using SafeMath for uint; // you can make a call like myUint.add(123)
 
 
     // TODO: set some static variables
-     address payable TOGA = 0x6AEAeE5Fd4D05A741723D752D30EE4D72690A8f7;
+     address toga = 0x6AEAeE5Fd4D05A741723D752D30EE4D72690A8f7;
 
      //uint public vestTime; // temporarily removed
 
      // scope of tghe PIC is just ricochet token at this point
-     ERC20 ric = ERC20("0x263026E7e53DBFDce5ae55Ade22493f828922965")
-
+     // address ric = 0x263026E7e53DBFDce5ae55Ade22493f828922965;
+     ISuperToken ric = ISuperToken(0x263026E7e53DBFDce5ae55Ade22493f828922965);
+     uint256 stakeAmount;
 
     // when you can withdraw is saved in lockTime
     mapping(address => uint) public lockTime;
@@ -31,15 +35,16 @@ import {vestingShares} from "vestingShares.sol
         ric.transferFrom(msg.sender, address(this), amount);
 
         // store account and amount sent to it
-        mint(msg.sender, amount); // Does transfer too
+
+        //mint(msg.sender, amount); // Does transfer too OUTSIDE OF TEST SCOPE
         // msg.sender.send()
 
         // Becomes PIC if it can afford it
-        if (address(this).balance > (TOGA.balance) * 1.1 ) {
+        if (ric.balanceOf(address(this)) > (ric.balanceOf(toga)) ) {
             // set variable here to reuse in withdraw
-            ric.balanceOf(address(this));
+            stakeAmount = ric.balanceOf(address(this));
 
-            TOGA.send( ric.balanceOf(address(this)) );
+            ISuperToken(ric).send( toga, ric.balanceOf(address(this)), "0x" );
 
             // lockTime[msg.sender] = block.timestamp + 90 days;
 
@@ -55,23 +60,23 @@ import {vestingShares} from "vestingShares.sol
 
         //TODO: FIGURE OUT HOW TO UNSTAKE
         // it takes up to 7 days to pull out the the full initial stake.
-        changeExitRate(ric.address, getMaxExitRate(ric.address, stakeAmount));
+        TOGA(toga).changeExitRate(ric, TOGA(toga).getMaxExitRateFor(ric, stakeAmount));
 
 
         //check PIC status
-        if (function getCurrentPIC(Ric) =! address(this)) {
+        if (TOGA(toga).getCurrentPIC(ric) != address(this)) {
 
 
             // send the ether back to the sender, share tokens are worth more than deposit tokens.
-            tokenValue = ric.balanceOf(address(this)) / ERC20.totalSupply()
-            ric.balanceOf(msg.sender)
+            // tokenValue = ric.balanceOf(address(this)) / ERC20.totalSupply() OUTSIDE SCOPE
+            ric.balanceOf(msg.sender);
         }
 
 
     }
 
-    function emergencyWithdraw(ERC20 token, uint amount) external onlyOwner {
-        token.transfer(owner()), amount)
+    function emergencyWithdraw(IERC20 token, uint amount) external onlyOwner {
+        token.transfer(owner(), amount);
     }
 
 
