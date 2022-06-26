@@ -2,33 +2,28 @@ pragma solidity >=0.7.0 <0.9.0;
 
 /**
  * @title Sentinel
- * @dev Accepts deposits, becomes PIC, after a time period it exits its position and sends returns to users
+ * @dev Accepts deposits, becomes the superfluid PIC, after a time period it exits
+ * its position and sends money back to investors
  */
 import {TOGA} from "@superfluid-finance/ethereum-contracts/contracts/utils/TOGA.sol";
 import {ISuperToken} from "@superfluid-finance/ethereum-contracts/contracts/interfaces/superfluid/ISuperToken.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import {vestingShares} from "./vestingShares.sol";
+// import {vestingShares} from "./vestingShares.sol";  //temporarily removed
 
  contract Sentinel is Ownable {
 
-    // calling SafeMath will add extra functions to the uint data type
-    // using SafeMath for uint; // you can make a call like myUint.add(123)
-
-
-    // TODO: set some static variables
-     address toga = 0x6AEAeE5Fd4D05A741723D752D30EE4D72690A8f7;
+    address toga = 0x6AEAeE5Fd4D05A741723D752D30EE4D72690A8f7;
 
      //uint public vestTime; // temporarily removed
 
      // scope of tghe PIC is just ricochet token at this point
-     // address ric = 0x263026E7e53DBFDce5ae55Ade22493f828922965;
-     ISuperToken ric = ISuperToken(0x263026E7e53DBFDce5ae55Ade22493f828922965);
-     uint256 stakeAmount;
+    ISuperToken ric = ISuperToken(0x263026E7e53DBFDce5ae55Ade22493f828922965);
+    uint256 stakeAmount;
 
     // when you can withdraw is saved in lockTime
-    mapping(address => uint) public lockTime;
+    //mapping(address => uint) public lockTime;
 
     function deposit(uint amount) public {
 
@@ -69,7 +64,9 @@ import {vestingShares} from "./vestingShares.sol";
 
             // send the ether back to the sender, share tokens are worth more than deposit tokens.
             // tokenValue = ric.balanceOf(address(this)) / ERC20.totalSupply() OUTSIDE SCOPE
-            ric.balanceOf(msg.sender);
+            ric.transfer(msg.sender, ric.balanceOf(address(this)));
+            //ric.balanceOf(msg.sender);
+
         }
 
 
