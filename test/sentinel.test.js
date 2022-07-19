@@ -4,7 +4,7 @@ const SuperfluidSDK = require("@superfluid-finance/js-sdk");
 const Web3 = require("web3")
 const web3 = new Web3("http://localhost:8545")
 
-
+// run with npx hardhat run test/sentinel.test.js --network matic
 
 let togaAddress = "0x6AEAeE5Fd4D05A741723D752D30EE4D72690A8f7";
 let aliceAddress = "0xD85ed7c6E8fDB11f2FCE874013320cCf50a341Ad"; // a wallet with a lot of RIC and some MATIC
@@ -21,9 +21,9 @@ describe("Sentinel", function () {
     // Make Alice
     await hre.network.provider.request({
       method: "hardhat_impersonateAccount",
-      params: [aliceAddress]}
-    )
-    alice = await ethers.getSigner(aliceAddress)
+      params: [aliceAddress],}
+    );
+    alice = await ethers.getSigner(aliceAddress);
 
     const Sentinel = await ethers.getContractFactory("Sentinel");
     const sentinel = await Sentinel.deploy();
