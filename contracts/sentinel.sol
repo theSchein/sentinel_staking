@@ -13,7 +13,7 @@ import {ISuperToken} from "@superfluid-finance/ethereum-contracts/contracts/inte
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import {vestingShares} from "./vestingShares.sol";  
+import {vestingShares} from "./vestingShares.sol";
 
  contract Sentinel is Ownable, vestingShares {
 
@@ -23,7 +23,7 @@ import {vestingShares} from "./vestingShares.sol";
     ISuperToken ric = ISuperToken(0x263026E7e53DBFDce5ae55Ade22493f828922965);
     uint256 stakeAmount;
 
-    bool withdrawable = false; 
+    bool withdrawable = false;
 
     uint shareValue;
 
@@ -32,7 +32,7 @@ import {vestingShares} from "./vestingShares.sol";
     // when you can withdraw is saved in lockTime
     mapping(address => uint) public lockTime;
 
-    //amount staked to address 
+    //amount staked to address
     mapping(address => uint) public stake;
 
     function deposit(uint amount) public {
@@ -81,8 +81,8 @@ import {vestingShares} from "./vestingShares.sol";
             withdrawable = true;
             // send the ether back to the sender, share tokens are worth more than deposit tokens.
             shareValue = ric.balanceOf(address(this)) / ERC20.totalSupply(); //OUTSIDE SCOPE
-            
-            
+
+
             //ric.transfer(msg.sender, ric.balanceOf(address(this))); //currently only set up for one funder
 
         }
@@ -91,12 +91,10 @@ import {vestingShares} from "./vestingShares.sol";
     function withdraw(uint amount) public payable{
         // executor can redem thier shares for the original investment + profit
         require(ERC20.balanceOf(msg.sender) > 0, "You have no shares to redeem" );
-
+        require(withdrawable != false);
 
         ric.transferFrom(address(this), msg.sender, amount * shareValue);
 
-
-        
     }
 
     function emergencyWithdraw(IERC20 token, uint amount) external onlyOwner {
