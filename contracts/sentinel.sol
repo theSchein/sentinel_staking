@@ -11,11 +11,14 @@ import "@openzeppelin/contracts/utils/Context.sol";
 import {TOGA} from "@superfluid-finance/ethereum-contracts/contracts/utils/TOGA.sol";
 import {ISuperToken} from "@superfluid-finance/ethereum-contracts/contracts/interfaces/superfluid/ISuperToken.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import {vestingShares} from "./vestingShares.sol";
+//import {vestingShares} from "./vestingShares.sol";
+import "hardhat/console.sol";
 
- contract Sentinel is Ownable, vestingShares {
+ contract Sentinel is ERC20Burnable, Ownable {
+
 
     address toga = 0x6AEAeE5Fd4D05A741723D752D30EE4D72690A8f7;
 
@@ -35,6 +38,9 @@ import {vestingShares} from "./vestingShares.sol";
     //amount staked to address
     mapping(address => uint) public stake;
 
+    constructor() ERC20("stonks", "STNK") {}
+
+
     function deposit(uint amount) public {
 
         require(TOGA(toga).getCurrentPIC(ric) != address(this), "Already PIC, not accepting more capital");
@@ -43,12 +49,11 @@ import {vestingShares} from "./vestingShares.sol";
         stake[msg.sender] = amount;
 
         // issue erc20 shares of token to the investor
-        mint(msg.sender, amount);
+        _mint(msg.sender, amount);
 
 
         // Transfer ric token from user to contract
         ric.transferFrom(msg.sender, address(this), amount);
-
         // msg.sender.send()
 
         // Becomes PIC if it can afford it
@@ -56,7 +61,7 @@ import {vestingShares} from "./vestingShares.sol";
             // set variable here to reuse in withdraw
             stakeAmount = ric.balanceOf(address(this));
 
-            ISuperToken(ric).send( toga, ric.balanceOf(address(this)), "0x" );
+            ISuperToken(ric).transfer(toga, ric.balanceOf(address(this))); //send( toga, ric.balanceOf(address(this)), "0x" );
 
             lockTime[address(this)] = block.timestamp + 2 days;  //2 days for testing 90 days for production
 

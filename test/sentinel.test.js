@@ -7,7 +7,7 @@ const web3 = new Web3("http://localhost:8545")
 // run with npx hardhat run test/sentinel.test.js --network matic
 
 let togaAddress = "0x6AEAeE5Fd4D05A741723D752D30EE4D72690A8f7";
-let aliceAddress = "0xD85ed7c6E8fDB11f2FCE874013320cCf50a341Ad" //"0xD85ed7c6E8fDB11f2FCE874013320cCf50a341Ad"; // a wallet with a lot of RIC and some MATIC
+let aliceAddress = "0xBedE99308C1ef78bCd2953fcA90b508c3B0A0fc0" //"0xD85ed7c6E8fDB11f2FCE874013320cCf50a341Ad"; // a wallet with a lot of RIC and some MATIC
 let alice;
 let ricAddress = "0x263026E7e53DBFDce5ae55Ade22493f828922965";
 let ric;
@@ -49,9 +49,9 @@ describe("Sentinel", function () {
 
   it("should deposit and become pic", async function () {
     let aliceBal = await ric.balanceOf(alice.address);
-    console.log('Alices RIC:', aliceBal)
-    await ric.approve(sentinel.address, aliceBal);
-    await sentinel.deposit(aliceBal);
+    let togaBal = await ric.balanceOf(toga.address);
+    await ric.connect(alice).approve(sentinel.address, aliceBal);
+    await sentinel.connect(alice).deposit(aliceBal);
 
     //// Expect the RIC was properly deposited to the TOGA contract
     // Alice sent all her RIC to sentinel
@@ -59,10 +59,20 @@ describe("Sentinel", function () {
     // Sentinel sent all its RIC to TOGA
     expect(await ric.balanceOf(sentinel.address)).to.equal(0);
     // Toga has all the RIC from alice
-    expect(await ric.balanceOf(toga.address)).to.equal(aliceBal);
+    expect(await ric.balanceOf(toga.address)).to.not.equal(togaBal);
 
     //// Expect that the sentinel is the PIC
-    expect(await toga.getCurrentPIC(ric.address)).to.equal(sentinel.address)
+    console.log(await toga.getCurrentPIC(ric.address));
+    expect(await toga.getCurrentPIC(ric.address)).to.equal(sentinel.address);
 
   });
+
+  it("should unstake toga", async function (){
+    
+
+  });
+
+  it("should withdraw funds"), async function () {
+
+  }
 });
