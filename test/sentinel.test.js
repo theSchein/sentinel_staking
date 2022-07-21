@@ -7,12 +7,13 @@ const web3 = new Web3("http://localhost:8545")
 // run with npx hardhat run test/sentinel.test.js --network matic
 
 let togaAddress = "0x6AEAeE5Fd4D05A741723D752D30EE4D72690A8f7";
-let aliceAddress = "0xD85ed7c6E8fDB11f2FCE874013320cCf50a341Ad"; // a wallet with a lot of RIC and some MATIC
+let aliceAddress = "0xD85ed7c6E8fDB11f2FCE874013320cCf50a341Ad" //"0xD85ed7c6E8fDB11f2FCE874013320cCf50a341Ad"; // a wallet with a lot of RIC and some MATIC
 let alice;
 let ricAddress = "0x263026E7e53DBFDce5ae55Ade22493f828922965";
 let ric;
 let toga;
 let sf;
+let sentinel;
 
 describe("Sentinel", function () {
 
@@ -26,8 +27,9 @@ describe("Sentinel", function () {
     alice = await ethers.getSigner(aliceAddress);
 
     const Sentinel = await ethers.getContractFactory("Sentinel");
-    const sentinel = await Sentinel.deploy();
+    sentinel = await Sentinel.deploy();
     await sentinel.deployed();
+    console.log('Sentinel deployed to:', sentinel.address);
 
     const ERC20 = await ethers.getContractFactory("ERC20");
     ric = await ERC20.attach(ricAddress);
@@ -47,19 +49,20 @@ describe("Sentinel", function () {
 
   it("should deposit and become pic", async function () {
     let aliceBal = await ric.balanceOf(alice.address);
-    await ric.approve(sentinal.address, aliceBal);
-    await sentinal.deposit(aliceBal);
+    console.log('Alices RIC:', aliceBal)
+    await ric.approve(sentinel.address, aliceBal);
+    await sentinel.deposit(aliceBal);
 
     //// Expect the RIC was properly deposited to the TOGA contract
-    // Alice sent all her RIC to sentinal
+    // Alice sent all her RIC to sentinel
     expect(await ric.balanceOf(alice.address)).to.equal(0);
     // Sentinel sent all its RIC to TOGA
-    expect(await ric.balanceOf(sentinal.address)).to.equal(0);
+    expect(await ric.balanceOf(sentinel.address)).to.equal(0);
     // Toga has all the RIC from alice
     expect(await ric.balanceOf(toga.address)).to.equal(aliceBal);
 
-    //// Expect that the sentinal is the PIC
-    expect(await toga.getCurrentPIC(ric.address)).to.equal(sentinal.address)
+    //// Expect that the sentinel is the PIC
+    expect(await toga.getCurrentPIC(ric.address)).to.equal(sentinel.address)
 
   });
 });

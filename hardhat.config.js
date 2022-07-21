@@ -16,16 +16,15 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
 // Go to https://hardhat.org/config/ to learn more
 
 module.exports = {
-  defaultNetwork: "matic",
   networks: {
     hardhat: {
       forking: {
-        url: process.env.POLYGON_RPC_URL,
+        url:  process.env.POLYGON_RPC_URL,
         block: 30000000
       }
     },
     matic: {
-      url: process.env.POLYGON_RPC_URL,
+      url:  process.env.POLYGON_RPC_URL,
       accounts: [process.env.POLYGON_PRIVATE_KEY]
     }
   },

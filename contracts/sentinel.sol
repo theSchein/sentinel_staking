@@ -91,7 +91,7 @@ import {vestingShares} from "./vestingShares.sol";
     function withdraw(uint amount) public payable{
         // executor can redem thier shares for the original investment + profit
         require(ERC20.balanceOf(msg.sender) > 0, "You have no shares to redeem" );
-        require(withdrawable != false);
+        require(withdrawable == true, 'You are not able to withdraw your funds yet');
 
         ric.transferFrom(address(this), msg.sender, amount * shareValue);
 
